@@ -39,3 +39,17 @@
     margin-left: auto;
     margin-right: auto; 
 }
+
+.dropdown
+{
+    display: flex;
+    flex-direction: row;
+}
+
+#sortby-buttons
+{
+    display: flex;
+    gap: 10px;
+    margin: 10px;
+    justify-content: flex-end;
+}
