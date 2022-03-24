@@ -31,7 +31,6 @@
     <div id="header">
             <ul id="nav-buttons">
                 <li><a class="text-decoration-none" href="index.php"><h1>Andy's Movie Blog</h1></a></li>
-
                 <div class="post-buttons">
                 <li><a id="new-post" href="create.php">New Post</a></li>
                 <li><a id="home-page" href="index.php">Home</a></li>
@@ -40,9 +39,15 @@
         </div> 
     <body>
         <div class="container">
-        <a class="title" href="index.php"><h1><?= $row['movieName'] ?></h1></a>
-            <small><?= date("F j, Y", strtotime($row['postTime'])) ?><a href="edit.php?movieId=<?= $row['movieId'] ?>">Edit post</a></small>
+        <a class="text-decoration-none" href="index.php"><h1><?= $row['movieName'] ?></h1></a>
+        <h4><?= "Released: " . $row['releaseDate'] ?><button type="button" class="btn btn-light"><a class="text-decoration-none" href="update.php?movieId=<?= $row['movieId'] ?>">Edit post</a></button></h4>
+            <small><?= date("F j, Y, g:i a", strtotime($row['postTime'])) ?></small>
+            <h5><?= "Directors: " . $row['directorName'] ?></h5>
+            <h5><?= "Genres: " . $row['movieGenre'] ?></h5>
+            <h4><?= "Release Date: " . $row['releaseDate'] ?></h4>
             <p><?= $row['description'] ?></p>
+            <p><?= "Additional Notes: " . $row['notes'] ?></p>
+
         </div>
     </body>
 </html>
