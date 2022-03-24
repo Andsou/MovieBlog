@@ -16,12 +16,17 @@
         $directorName = filter_input(INPUT_POST, 'directorName', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $movieGenre = filter_input(INPUT_POST, 'movieGenre', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $releaseDate = filter_input(INPUT_POST, 'releaseDate', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $notes = filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-        $query = "INSERT INTO movies (movieName, description, directorName, movieGenre, releaseDate) VALUES (:movieName, :description, :directorName, :movieGenre, :releaseDate)";
+        $query = "INSERT INTO movies (movieName, description, directorName, movieGenre, releaseDate, notes) VALUES (:movieName, :description, :directorName, :movieGenre, :releaseDate, :notes)";
         $statement = $db->prepare($query);
 
-        $statement->bindValue(":title", $title);
-        $statement->bindValue(":content", $content);
+        $statement->bindValue(":movieName", $movieName);
+        $statement->bindValue(":description", $description);
+        $statement->bindValue(":directorName", $directorName);
+        $statement->bindValue(":movieGenre", $movieGenre);
+        $statement->bindValue(":releaseDate", $releaseDate);
+        $statement->bindValue(":notes", $notes);
 
         if($statement->execute())
         {
@@ -64,23 +69,23 @@
                     <label for="movieName" placeholder="Enter the movie's name">Movie's Name</label>
                     <input id="movieName" type="text" name="movieName" class="form-control" placeholder="Enter the movie's name">
 
-                    <label for="directorName">Director's Name</label>
-                    <input id="directorName" type="text" name="directorName" class="form-control">
+                    <label for="directorName">Director's Name(s)</label>
+                    <input id="directorName" type="text" name="directorName" class="form-control" placeholder="Enter the director's names">
 
                     <label for="movieGenre">Movie's Genre(s)</label>
-                    <input id="movieGenre" type="text" name="movieGenre" class="form-control">
+                    <input id="movieGenre" type="text" name="movieGenre" class="form-control"  placeholder="Enter the movie genre(s)">
 
                     <label for="releaseDate">Release Date</label>
-                    <input id="releaseDate" name="releaseDate" class="form-control">
+                    <input id="releaseDate" type="date" name="releaseDate" class="form-control">
                     
                     <div id="text-area">
                         <label for="description">Description</label>
-                        <textarea id="description" name="description" rows="10" cols="50"></textarea>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Plot of the movie?"></textarea>
                     </div>
                     <div id="text-area">
                         <label for="notes">Notes</label>
-                        <textarea id="notes" name="notes" rows="10" cols="50"></textarea>
-                        <input type="submit" value="Submit Post">
+                        <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="(optional) Opinion on the movie?"></textarea>
+                        <button type="submit" class="btn btn-primary">Submit</button>
                     </div>
                 </form>
             </div>
