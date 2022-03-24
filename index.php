@@ -8,7 +8,7 @@
 
    require('DbConnect.php');
 
-   $query = "SELECT * FROM movies LIMIT 10";
+   $query = "SELECT * FROM movies ORDER BY postTime DESC LIMIT 10";
 
    $statement = $db->prepare($query);
 
@@ -35,17 +35,17 @@
             </ul>                         
         </div> 
 
-        <div class="container">
-        <?php while($row = $statement->fetch()): ?>
-            <h2><a class="text-decoration-none" href="description.php?movieId=<?= $row['movieId'] ?>"><?= $row['movieName'] ?></a></h2>
-            <h4><?= "Released: " . $row['releaseDate'] ?><button type="button" class="btn btn-light"><a class="text-decoration-none" href="update.php?movieId=<?= $row['movieId'] ?>">Edit post</a></button></h4>
-            <small><?= "Posted on: " . date("F j, Y, g:i a", strtotime($row['postTime'])) ?></small>
-            <?php if (strlen($row['description']) > 500): ?>                   
-                <p><?= substr_replace($row['description'],"<a href=description.php?movieId=" . $row['movieId'] . ">Read more...</a>", 500);?></p>
-            <?php else:?>
-                <p><?= $row['description'] ?></p>
-            <?php endif ?>
-        <?php endwhile ?>
+        <div class="container">         
+            <?php while($row = $statement->fetch()): ?>
+                <h2><a class="text-decoration-none" href="description.php?movieId=<?= $row['movieId'] ?>"><?= $row['movieName'] ?></a></h2>
+                <h4><?= "Released: " . $row['releaseDate'] ?><button type="button" class="btn btn-light"><a class="text-decoration-none" href="update.php?movieId=<?= $row['movieId'] ?>">Edit post</a></button></h4>
+                <small><?= "Posted on: " . date("F j, Y, g:i a", strtotime($row['postTime'])) ?></small>
+                <?php if (strlen($row['description']) > 500): ?>                   
+                    <p><?= substr_replace($row['description'],"<a href=description.php?movieId=" . $row['movieId'] . ">Read more...</a>", 500);?></p>
+                <?php else:?>
+                    <p><?= $row['description'] ?></p>
+                <?php endif ?>
+            <?php endwhile ?>
         </div>
     </body>
 </html>
