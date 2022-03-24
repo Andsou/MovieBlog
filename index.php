@@ -10,6 +10,29 @@
 
    $query = "SELECT * FROM movies ORDER BY postTime DESC LIMIT 10";
 
+    if ($_POST)
+    {
+        require('authenticate.php');
+
+        if (isset($_POST['old-to-new']))
+        {
+            $query = "SELECT * FROM movies ORDER BY postTime ASC LIMIT 10";
+        }   
+        else if (isset($_POST['new-to-old']))
+        {
+            $query = "SELECT * FROM movies ORDER BY postTime DESC LIMIT 10";
+        }    
+        else if (isset($_POST['sort-title']))
+        {
+            
+            $query = "SELECT * FROM movies ORDER BY movieName DESC LIMIT 10";
+        }
+        else
+        {
+            $query = "SELECT * FROM movies ORDER BY postTime DESC LIMIT 10";
+        }
+    }
+
    $statement = $db->prepare($query);
 
    $statement->execute();
@@ -35,7 +58,16 @@
             </ul>                         
         </div> 
 
-        <div class="container">         
+        <div class="container">
+            <div id="sortby-buttons">
+                <h3>Sort by...</h3>
+                <form method="post">
+                    <button type="submit" id="old-to-new" name="old-to-new" class="btn btn-secondary">Oldest to newest</button>
+                    <button type="submit" id="new-to-old" name="new-to-old" class="btn btn-secondary">Newest to oldest</button>
+                    <button type="submit" id="sort-title" name="sort-title" class="btn btn-secondary">Sort by title (A-Z)</button>
+                </form>
+            </div>
+                       
             <?php while($row = $statement->fetch()): ?>
                 <h2><a class="text-decoration-none" href="description.php?movieId=<?= $row['movieId'] ?>"><?= $row['movieName'] ?></a></h2>
                 <h4><?= "Released: " . $row['releaseDate'] ?><button type="button" class="btn btn-light"><a class="text-decoration-none" href="update.php?movieId=<?= $row['movieId'] ?>">Edit post</a></button></h4>
