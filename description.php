@@ -8,15 +8,32 @@
 
     require('DbConnect.php');
         
-    $query = "SELECT * FROM movies WHERE movieId = :movieId LIMIT 1";
+    $query = "SELECT * FROM movies";
     $statement = $db->prepare($query);
 
-    $id = filter_input(INPUT_GET, 'movieId', FILTER_SANITIZE_NUMBER_INT);
+    $commentId = filter_input(INPUT_GET, 'comments.movieId', FILTER_SANITIZE_NUMBER_INT);
 
-    $statement->bindValue('movieId', $id, PDO::PARAM_INT);
+    $statement->bindValue('id', $id, PDO::PARAM_INT);
     $statement->execute();
 
     $row = $statement->fetch();
+
+    if ($_POST && !empty($_POST['userName']) && !empty($_POST['content']))
+    {
+        $commentUserName = filter_input(INPUT_POST, 'commentUserName', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $commentContent = filter_input(INPUT_POST, 'commentContent', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        
+        $query = "INSERT INTO movies (commentUserName, commentContent) VALUES (:commentUserName, :commentContent)";
+        $statement = $db->prepare($query);
+
+        $statement->bindValue(":commentUserName", $commentUserName);
+        $statement->bindValue(":commentContent", $commentContent);
+ 
+        if ($statement->execute())
+        {
+            header('Location: index.php');    
+        }
+    }
 ?>
 
 
@@ -47,7 +64,33 @@
             <h4><?= "Release Date: " . $row['releaseDate'] ?></h4>
             <p><?= $row['description'] ?></p>
             <p><?= "Additional Notes: " . $row['notes'] ?></p>
-
         </div>
+
+        <div class="container">
+            <div class="form-group">
+                <form method="post" action="description.php">
+                    <h2>Comments</h2>
+                    <label for="userName">Username</label>
+                    <input id="userName" type="text" name="userName" class="form-control" placeholder="Enter Username">
+
+                    <div id="text-area">
+                        <label for="content">Content</label>
+                        <textarea class="form-control" id="content" name="content" rows="3" placeholder="Content"></textarea>
+                        <button type="submit" class="btn btn-primary">Submit</button>     
+                    </div>               
+                </form>
+            </div>
+        </div>
+
+        <?php while($row = $statement->fetch()): ?>
+            <div class="container">
+                <h5><?= "User Name: " . $row['userName'] ?></h5>
+                <div>
+                    <h5>Content</h5>
+                    <p><?= $row['content'] ?></p>
+                </div>
+                <small><?= "Posted on: " . date("F j, Y, g:i a", strtotime($row['date'])) ?></small>
+            </div>
+        <?php endwhile ?>
     </body>
 </html>
