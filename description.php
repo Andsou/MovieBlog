@@ -27,7 +27,7 @@
         $commentContent = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $movieId = filter_input(INPUT_POST, 'movieId', FILTER_SANITIZE_NUMBER_INT);
         
-        $query = "INSERT INTO comments (userName, content, movieIdFk) VALUES (:userName, :content, :movieIdFk)";
+        $query = "INSERT INTO comments (userName, content, movieIdFk) VALUES (:userName, :content, :movieIdFk);";
         $statement = $db->prepare($query);
  
         $statement->bindValue(":userName", $commentUserName);
@@ -36,7 +36,7 @@
  
         if ($statement->execute()) 
         {
-            header('Location: index.php');
+            header("Location:description.php?movieId=$movieId");
         } 
         $row = $statement->fetch();     
     }
