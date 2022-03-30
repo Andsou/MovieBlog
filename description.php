@@ -7,33 +7,48 @@
     */
 
     require('DbConnect.php');
-        
-    $query = "SELECT * FROM movies";
-    $statement = $db->prepare($query);
 
-    $commentId = filter_input(INPUT_GET, 'comments.movieId', FILTER_SANITIZE_NUMBER_INT);
+    $query = "SELECT * 
+    FROM movies
+    LEFT JOIN comments on movies.movieId = comments.movieIdFk
+    WHERE movieId = :movieId OR movieId is null";
 
-    $statement->bindValue('id', $id, PDO::PARAM_INT);
+    $statement = $db->prepare($query);          
+    $id = filter_input(INPUT_GET, 'movieId', FILTER_SANITIZE_NUMBER_INT); 
+
+    $statement->bindValue('movieId', $id, PDO::PARAM_INT);
     $statement->execute();
 
     $row = $statement->fetch();
 
-    if ($_POST && !empty($_POST['userName']) && !empty($_POST['content']))
+    if ($_POST && !empty($_POST['userName']) && !empty($_POST['content']) && isset($_POST['movieId']))
     {
-        $commentUserName = filter_input(INPUT_POST, 'commentUserName', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $commentContent = filter_input(INPUT_POST, 'commentContent', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $commentUserName = filter_input(INPUT_POST, 'userName', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $commentContent = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $movieId = filter_input(INPUT_POST, 'movieId', FILTER_SANITIZE_NUMBER_INT);
         
-        $query = "INSERT INTO movies (commentUserName, commentContent) VALUES (:commentUserName, :commentContent)";
+        $query = "INSERT INTO comments (userName, content, movieIdFk) VALUES (:userName, :content, :movieIdFk)";
         $statement = $db->prepare($query);
-
-        $statement->bindValue(":commentUserName", $commentUserName);
-        $statement->bindValue(":commentContent", $commentContent);
  
-        if ($statement->execute())
+        $statement->bindValue(":userName", $commentUserName);
+        $statement->bindValue(":content", $commentContent);
+        $statement->bindValue(':movieIdFk', $movieId, PDO::PARAM_INT);
+ 
+        if ($statement->execute()) 
         {
-            header('Location: index.php');    
+            header('Location: index.php');
+        } 
+        $row = $statement->fetch();     
+    }
+
+    if ($_POST)
+    {
+        if (empty($_POST['userName']) && empty($_POST['content']))
+        {
+            header('Location: errorRedirect.html');
         }
     }
+  
 ?>
 
 
@@ -69,6 +84,7 @@
         <div class="container">
             <div class="form-group">
                 <form method="post" action="description.php">
+                <input type="hidden" name="movieId" value="<?= $row['movieId'] ?>">
                     <h2>Comments</h2>
                     <label for="userName">Username</label>
                     <input id="userName" type="text" name="userName" class="form-control" placeholder="Enter Username">
@@ -81,15 +97,16 @@
                 </form>
             </div>
         </div>
-
-        <?php while($row = $statement->fetch()): ?>
+        
+        <?php while($comments = $statement->fetch()): ?>
             <div class="container">
-                <h5><?= "User Name: " . $row['userName'] ?></h5>
+                <h4>Username</h4>
+                <h5><?= $comments['userName'] ?></h5>
                 <div>
                     <h5>Content</h5>
-                    <p><?= $row['content'] ?></p>
+                    <p><?= $comments['content'] ?></p>
                 </div>
-                <small><?= "Posted on: " . date("F j, Y, g:i a", strtotime($row['date'])) ?></small>
+                <small><?= "Posted on: " . date("F j, Y, g:i a", strtotime($comments['date'])) ?></small>
             </div>
         <?php endwhile ?>
     </body>
