@@ -23,7 +23,7 @@
         $notes = filter_input(INPUT_POST, 'notes', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
         
-        $query = "UPDATE movies SET movieName = :movieName, description = :description, directorName = :directorName, movieGenre = :movieGenre, releaseDate = :releaseDate, notes = :notes WHERE movieId = :movieId";
+        $query = "UPDATE movies SET movieName = :movieName, description = :description, directorName = :directorName, movieGenre = :movieGenre, releaseDate = :releaseDate, notes = :notes WHERE movieId = :movieId;";
         $statement = $db->prepare($query);
         $statement->bindValue(':movieName', $movieName);        
         $statement->bindValue(':directorName', $directorName);
