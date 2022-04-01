@@ -8,47 +8,64 @@
 
     require('DbConnect.php');
 
-    $query = "SELECT * 
-    FROM movies
-    LEFT JOIN comments on movies.movieId = comments.movieIdFk
-    WHERE movieId = :movieId OR movieId is null";
+    $query = "SELECT * FROM movies 
+              LEFT JOIN comments on movies.movieId = comments.movieIdFk
+              LEFT JOIN images on images.movieIds = movies.movieId 
+              WHERE movieId = :movieId
+              ORDER BY comments DESC";
 
     $statement = $db->prepare($query);          
     $id = filter_input(INPUT_GET, 'movieId', FILTER_SANITIZE_NUMBER_INT); 
-
     $statement->bindValue('movieId', $id, PDO::PARAM_INT);
     $statement->execute();
 
     $row = $statement->fetch();
-
-    if ($_POST && !empty($_POST['userName']) && !empty($_POST['content']) && isset($_POST['movieId']))
-    {
+        
+    // Inserts comment into the comments database
+    if (isset($_POST['submit-comment']) && !empty($_POST['userName']) && !empty($_POST['content'])) {
         $commentUserName = filter_input(INPUT_POST, 'userName', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $commentContent = filter_input(INPUT_POST, 'content', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        $movieId = filter_input(INPUT_POST, 'movieId', FILTER_SANITIZE_NUMBER_INT);
-        
+        $movieId = filter_input(INPUT_POST, 'movieId', FILTER_SANITIZE_NUMBER_INT); 
+
         $query = "INSERT INTO comments (userName, content, movieIdFk) VALUES (:userName, :content, :movieIdFk);";
         $statement = $db->prepare($query);
- 
         $statement->bindValue(":userName", $commentUserName);
         $statement->bindValue(":content", $commentContent);
-        $statement->bindValue(':movieIdFk', $movieId, PDO::PARAM_INT);
+        $statement->bindValue(":movieIdFk", $movieId);
+      
  
-        if ($statement->execute()) 
-        {
+        if ($statement->execute()) {
             header("Location:description.php?movieId=$movieId");
-        } 
-        $row = $statement->fetch();     
+        }        
     }
 
-    if ($_POST)
-    {
-        if (empty($_POST['userName']) && empty($_POST['content']))
-        {
-            header('Location: errorRedirect.html');
-        }
+    if (isset($_POST['upload'])) {
+        $target = "images/" . basename($_FILES['image']['name']);
+        $image = $_FILES['image']['name'];
+        $movieId = filter_input(INPUT_POST, 'movieId', FILTER_SANITIZE_NUMBER_INT);
+        
+        $query = "INSERT INTO images (image, movieIds) VALUES ('$image', :movieIds)"; 
+
+        move_uploaded_file($_FILES['image']['tmp_name'], $target);
+
+        $statement = $db->prepare($query);
+        $statement->bindValue(':movieIds', $movieId, PDO::PARAM_INT);
+
+        if ($statement->execute()) {
+            header("Location: index.php");
+        }  
+        
+        $image = $statement->fetch();
     }
-  
+
+    $query = "SELECT * FROM comments 
+    WHERE movieIdFk = ".$row['movieId']."
+    ORDER BY date DESC";
+
+    $statement = $db->prepare($query);          
+    $statement->execute();
+
+    $comment = $statement->fetch();
 ?>
 
 
@@ -72,6 +89,20 @@
     <body>
         <div class="container">
         <a class="text-decoration-none" href="index.php"><h1><?= $row['movieName'] ?></h1></a>
+
+        <form method="post" action="description.php" enctype="multipart/form-data">
+            <input type="hidden" name="movieId" value="<?= $row['movieId'] ?>">
+                <div>
+                    <input type="file" name="image">
+                </div>
+                <input type="submit" name="upload">
+        </form>
+
+        
+        <div>
+            <img src="images/<?= $row['image'] ?>">
+        </div>
+
         <h4><?= "Released: " . $row['releaseDate'] ?><button type="button" class="btn btn-light"><a class="text-decoration-none" href="update.php?movieId=<?= $row['movieId'] ?>">Edit post</a></button></h4>
             <small><?= date("F j, Y, g:i a", strtotime($row['postTime'])) ?></small>
             <h5><?= "Directors: " . $row['directorName'] ?></h5>
@@ -92,7 +123,7 @@
                     <div id="text-area">
                         <label for="content">Content</label>
                         <textarea class="form-control" id="content" name="content" rows="3" placeholder="Content"></textarea>
-                        <button type="submit" class="btn btn-primary">Submit</button>     
+                        <button type="submit" name="submit-comment" class="btn btn-primary">Submit</button>     
                     </div>               
                 </form>
             </div>
