@@ -10,25 +10,19 @@
 
    $query = "SELECT * FROM movies ORDER BY postTime DESC LIMIT 10";
 
-    if ($_POST)
-    {
+    if ($_POST) {
         require('authenticate.php');
 
-        if (isset($_POST['old-to-new']))
-        {
+        if (isset($_POST['old-to-new'])) {
             $query = "SELECT * FROM movies ORDER BY postTime ASC LIMIT 10";
         }   
-        else if (isset($_POST['new-to-old']))
-        {
+        else if (isset($_POST['new-to-old'])) {
             $query = "SELECT * FROM movies ORDER BY postTime DESC LIMIT 10";
         }    
-        else if (isset($_POST['sort-title']))
-        {
-            
+        else if (isset($_POST['sort-title'])) {          
             $query = "SELECT * FROM movies ORDER BY movieName DESC LIMIT 10";
         }
-        else
-        {
+        else {
             $query = "SELECT * FROM movies ORDER BY postTime DESC LIMIT 10";
         }
     }
@@ -50,12 +44,17 @@
         <div id="header">
             <ul id="nav-buttons">
                 <li><a class="text-decoration-none" href="index.php"><h1>Andy's Movie Blog</h1></a></li>
-
                 <div class="post-buttons">
                 <li><a id="new-post" href="create.php">New Post</a></li>
                 <li><a id="home-page" href="index.php">Home</a></li>
                 </div>
-            </ul>                         
+            </ul> 
+            
+            <form action="search.php" method="POST">
+                <label>Search</label>
+                <input type="text" name="search">
+                <input type="submit" name="submit">
+            </form>
         </div> 
 
         <div class="container">
